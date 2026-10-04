@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#3b82f6"/>
+  <g fill="#ffffff">
+    <rect x="96" y="96" width="320" height="320" rx="24" fill="#eff6ff"/>
+  </g>
+  <g fill="#3b82f6">
+    <path d="M96 200h320v16H96zM96 296h320v16H96zM200 96h16v320h-16zM296 96h16v320h-16z"/>
+    <text x="148" y="176" font-family="Arial, sans-serif" font-size="72" font-weight="bold" text-anchor="middle">5</text>
+    <text x="340" y="176" font-family="Arial, sans-serif" font-size="72" font-weight="bold" text-anchor="middle">3</text>
+    <text x="148" y="368" font-family="Arial, sans-serif" font-size="72" font-weight="bold" text-anchor="middle">7</text>
+    <text x="244" y="272" font-family="Arial, sans-serif" font-size="72" font-weight="bold" text-anchor="middle">1</text>
+    <text x="340" y="368" font-family="Arial, sans-serif" font-size="72" font-weight="bold" text-anchor="middle">9</text>
+  </g>
+  <g fill="#94a3b8">
+    <text x="244" y="176" font-family="Arial, sans-serif" font-size="72" font-weight="bold" text-anchor="middle">6</text>
+    <text x="340" y="272" font-family="Arial, sans-serif" font-size="72" font-weight="bold" text-anchor="middle">8</text>
+    <text x="148" y="272" font-family="Arial, sans-serif" font-size="72" font-weight="bold" text-anchor="middle">4</text>
+    <text x="244" y="368" font-family="Arial, sans-serif" font-size="72" font-weight="bold" text-anchor="middle">2</text>
+  </g>
+</svg>

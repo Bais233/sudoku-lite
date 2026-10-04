@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="classic">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#3b82f6">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>数独大师</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <header id="topbar">
+      <div class="brand">数独大师</div>
+      <div class="top-coins">◈ <span id="coins-label">0</span></div>
+      <div class="top-level">
+        <span id="level-label">Lv.1</span>
+        <div class="xp-bar"><div id="xp-fill"></div></div>
+      </div>
+      <select id="theme-select" aria-label="主题"></select>
+      <button id="sound-btn" class="icon-btn" aria-label="音效">♪</button>
+    </header>
+
+    <main>
+      <!-- 主菜单 -->
+      <section id="view-menu" class="view active">
+        <h1 class="menu-title">数独大师</h1>
+        <p class="menu-sub">越玩越爽的数独</p>
+        <div class="menu-buttons">
+          <button id="btn-continue" class="btn primary big">继续上次游戏</button>
+          <button id="btn-levels" class="btn primary big">关卡模式</button>
+          <button id="btn-free" class="btn big">自由模式</button>
+          <button id="btn-shop" class="btn big">商店</button>
+          <button id="btn-achievements" class="btn big">成就</button>
+        </div>
+        <p id="menu-stats" class="menu-stats"></p>
+      </section>
+
+      <!-- 关卡选择 -->
+      <section id="view-levels" class="view">
+        <div class="view-head">
+          <button id="btn-levels-back" class="btn small">← 返回</button>
+          <h2>关卡模式</h2>
+          <span id="levels-summary" class="view-note"></span>
+        </div>
+        <div id="levels-grid" class="levels-grid"></div>
+        <p class="legend">难度：1-10 简单 · 11-20 中等 · 21-30 困难 · 31-40 专家</p>
+      </section>
+
+      <!-- 商店 -->
+      <section id="view-shop" class="view">
+        <div class="view-head">
+          <button id="btn-shop-back" class="btn small">← 返回</button>
+          <h2>商店</h2>
+          <span class="view-note">持有 ◈ <span id="shop-coins">0</span></span>
+        </div>
+        <div id="shop-list" class="shop-list"></div>
+      </section>
+
+      <!-- 成就 -->
+      <section id="view-achievements" class="view">
+        <div class="view-head">
+          <button id="btn-ach-back" class="btn small">← 返回</button>
+          <h2>成就</h2>
+          <span class="view-note"></span>
+        </div>
+        <div id="ach-list" class="ach-list"></div>
+      </section>
+
+      <!-- 对局 -->
+      <section id="view-game" class="view">
+        <div class="game-hud">
+          <button id="btn-quit" class="btn small">← 菜单</button>
+          <span id="game-title" class="game-title"></span>
+          <span id="game-timer" class="hud-chip">00:00</span>
+        </div>
+        <div class="game-hud2">
+          <span id="game-mistakes" class="hud-chip">错误 0</span>
+          <span id="game-combo-wrap" class="hud-chip combo">连击 <b id="game-combo">x0</b></span>
+          <span id="game-hints" class="hud-chip">提示 3</span>
+        </div>
+
+        <div id="board" class="board" role="grid" aria-label="数独棋盘"></div>
+
+        <div id="digits" class="digits">
+          <button class="digit-btn" data-digit="1">1</button>
+          <button class="digit-btn" data-digit="2">2</button>
+          <button class="digit-btn" data-digit="3">3</button>
+          <button class="digit-btn" data-digit="4">4</button>
+          <button class="digit-btn" data-digit="5">5</button>
+          <button class="digit-btn" data-digit="6">6</button>
+          <button class="digit-btn" data-digit="7">7</button>
+          <button class="digit-btn" data-digit="8">8</button>
+          <button class="digit-btn" data-digit="9">9</button>
+        </div>
+
+        <div class="controls">
+          <button id="btn-erase" class="btn ctl">擦除</button>
+          <button id="btn-notes" class="btn ctl">笔记</button>
+          <button id="btn-hint" class="btn ctl">提示</button>
+          <button id="btn-undo" class="btn ctl">撤销</button>
+          <button id="btn-redo" class="btn ctl">重做</button>
+          <button id="btn-check" class="btn ctl">检查</button>
+          <button id="btn-solve" class="btn ctl danger">求解</button>
+        </div>
+      </section>
+    </main>
+
+    <!-- 结算弹层 -->
+    <div id="modal-result" class="modal hidden">
+      <div class="modal-box result-box">
+        <h2 id="result-title">通关！</h2>
+        <div id="result-stars" class="result-stars">★★★</div>
+        <div id="result-rows" class="result-rows"></div>
+        <div id="result-coins-total" class="result-coins"></div>
+        <div id="result-xp" class="result-xp"></div>
+        <div id="result-levelup" class="result-levelup"></div>
+        <div class="modal-actions">
+          <button id="btn-result-next" class="btn primary">下一关 →</button>
+          <button id="btn-result-again" class="btn">再来一局</button>
+          <button id="btn-result-menu" class="btn">返回菜单</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 确认弹层 -->
+    <div id="modal-confirm" class="modal hidden">
+      <div class="modal-box">
+        <p id="confirm-text">确定？</p>
+        <div class="modal-actions">
+          <button id="btn-confirm-yes" class="btn danger">确定</button>
+          <button id="btn-confirm-no" class="btn">取消</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 难度选择弹层 -->
+    <div id="modal-difficulty" class="modal hidden">
+      <div class="modal-box">
+        <p>选择难度</p>
+        <div class="diff-grid">
+          <button class="btn diff-btn diff-easy" data-diff="easy">简单</button>
+          <button class="btn diff-btn diff-medium" data-diff="medium">中等</button>
+          <button class="btn diff-btn diff-hard" data-diff="hard">困难</button>
+          <button class="btn diff-btn diff-expert" data-diff="expert">专家</button>
+        </div>
+        <div class="modal-actions">
+          <button id="btn-diff-cancel" class="btn">取消</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+    <div id="loading" class="loading hidden"><div class="spinner"></div><p>生成题目中…</p></div>
+    <div id="fx-layer"></div>
+    <canvas id="confetti"></canvas>
+  </div>
+
+  <script src="sudoku.js"></script>
+  <script src="economy.js"></script>
+  <script src="fx.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
