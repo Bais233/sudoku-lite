@@ -820,6 +820,51 @@
     };
     $('btn-result-menu').onclick = function () { quitToMenu(); };
 
+    // 兑换码：主菜单右下角隐形热区，2 秒内连点 3 次弹出
+    var tapCount = 0, tapTimer = null;
+    $('redeem-hotzone').onclick = function () {
+      tapCount++;
+      clearTimeout(tapTimer);
+      tapTimer = setTimeout(function () { tapCount = 0; }, 2000);
+      FX.sfx.click();
+      if (tapCount >= 3) {
+        tapCount = 0;
+        $('redeem-input').value = '';
+        $('modal-redeem').classList.remove('hidden');
+        $('redeem-input').focus();
+      }
+    };
+    $('btn-redeem-cancel').onclick = function () {
+      $('modal-redeem').classList.add('hidden');
+      FX.sfx.click();
+    };
+    $('btn-redeem-confirm').onclick = function () {
+      var code = $('redeem-input').value;
+      var res = Economy.redeem(eco, code);
+      if (!res.ok) {
+        FX.sfx.denied();
+        FX.shake($('redeem-input'));
+        toast(res.reason === 'used' ? '该兑换码已被使用' : '兑换码无效');
+        return;
+      }
+      Economy.save(eco);
+      updateTopbar();
+      renderThemeSelect();
+      $('modal-redeem').classList.add('hidden');
+      if (res.kind === 'admin') {
+        FX.sfx.win();
+        FX.confetti();
+        FX.levelUpFx();
+        toast('管理员兑换成功！金币 +99999，全部升级拉满，40 关全解锁');
+      } else {
+        FX.sfx.buy();
+        toast('兑换成功「' + res.label + '」金币 +' + res.coins);
+      }
+      Economy.checkAchievements(eco);
+      Economy.save(eco);
+      updateTopbar();
+    };
+
     // 键盘
     document.addEventListener('keydown', function (e) {
       if (!$('view-game').classList.contains('active')) return;

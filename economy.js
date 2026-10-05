@@ -79,6 +79,7 @@
         games: 0, cells: 0, bestCombo: 0, perfectGames: 0,
         expertClears: 0, totalCoins: 0, playSec: 0, notesUsed: 0
       },
+      redeemed: {}, // 已使用的兑换码哈希 → true
       achievements: {} // 已解锁成就 id → true
     };
   }
@@ -294,6 +295,55 @@
     return newly;
   }
 
+  // ---- 兑换码（明文不进源码，只存加盐哈希；输入自动转大写）----
+  var REDEEM_SALT = 'slv1';
+
+  function redeemHash(code) {
+    var str = String(code || '').trim().toUpperCase() + '|' + REDEEM_SALT;
+    var h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+    for (var i = 0; i < str.length; i++) {
+      var ch = str.charCodeAt(i);
+      h1 = Math.imul(h1 ^ ch, 2654435761);
+      h2 = Math.imul(h2 ^ ch, 1597334677);
+    }
+    h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+    h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+    return (2097151 * 4294967296 + (h2 >>> 0)).toString(36) + '-' + (h1 >>> 0).toString(36);
+  }
+
+  // 新增兑换码：用 redeemHash('明文码') 算出哈希后在此追加一条
+  var REDEEM_CODES = [
+    { hash: '2gos895343i-1s284po', kind: 'admin', label: '管理员兑换码' },
+    { hash: '2gos8w94f1s-1pw2zss', kind: 'coins', amount: 666, label: '金币礼包' }
+  ];
+
+  function maxUpgradeLevel(id) {
+    var item = shopItem(id);
+    return item ? item.max : 0;
+  }
+
+  // 返回 { ok:true, kind, label } 或 { ok:false, reason:'invalid'|'used' }
+  function redeem(state, input) {
+    var hash = redeemHash(input);
+    var code = null;
+    for (var i = 0; i < REDEEM_CODES.length; i++) {
+      if (REDEEM_CODES[i].hash === hash) { code = REDEEM_CODES[i]; break; }
+    }
+    if (!code) return { ok: false, reason: 'invalid' };
+    if (state.redeemed[hash]) return { ok: false, reason: 'used' };
+    state.redeemed[hash] = true;
+    var coins = 0;
+    if (code.kind === 'admin') {
+      for (var s = 0; s < SHOP.length; s++) state.upgrades[SHOP[s].id] = maxUpgradeLevel(SHOP[s].id);
+      for (var lv = 1; lv <= 40; lv++) state.levels[String(lv)] = 3;
+      coins = 99999;
+    } else {
+      coins = code.amount || 0;
+    }
+    if (coins > 0) addCoins(state, coins);
+    return { ok: true, kind: code.kind, label: code.label, coins: coins };
+  }
+
   return {
     VERSION: VERSION,
     KEY: KEY,
@@ -331,6 +381,10 @@
     themesUnlockedCount: themesUnlockedCount,
     isThemeUnlocked: isThemeUnlocked,
     setTheme: setTheme,
-    checkAchievements: checkAchievements
+    checkAchievements: checkAchievements,
+    REDEEM_SALT: REDEEM_SALT,
+    redeemHash: redeemHash,
+    REDEEM_CODES: REDEEM_CODES,
+    redeem: redeem
   };
 });

@@ -158,6 +158,28 @@ var bad = memStorage();
 bad.setItem(Economy.KEY, '{not json');
 assert(Economy.load(bad).coins === 0, 'corrupt save falls back');
 
+// 10. 兑换码
+var rd = Economy.defaultState();
+var bad = Economy.redeem(rd, 'WRONG-CODE-123');
+assert(!bad.ok && bad.reason === 'invalid', 'invalid code rejected');
+Economy.REDEEM_CODES.push({ hash: Economy.redeemHash('TEST-COIN-1'), kind: 'coins', amount: 500, label: '测试金币' });
+Economy.REDEEM_CODES.push({ hash: Economy.redeemHash('TEST-ADMIN-1'), kind: 'admin', label: '测试管理员' });
+var gotCoin = Economy.redeem(rd, 'test-coin-1'); // 大小写不敏感
+assert(gotCoin.ok && rd.coins === 500, 'coins code redeem (case-insensitive)');
+assert(Economy.redeem(rd, 'TEST-COIN-1').reason === 'used', 'code single-use');
+var preCoins = rd.coins;
+var gotAdmin = Economy.redeem(rd, ' TEST-ADMIN-1 ');
+assert(gotAdmin.ok && gotAdmin.kind === 'admin', 'admin code redeem');
+assert(rd.coins === preCoins + 99999, 'admin grants 99999 coins');
+assert(rd.upgrades.multiplier === 5 && rd.upgrades.autoNotes === 1 && rd.upgrades.hints === 4 && rd.upgrades.mercy === 3 && rd.upgrades.headstart === 3, 'admin maxes all upgrades');
+assert(Economy.levelsClearedCount(rd) === 40 && Economy.starsForLevel(rd, 40) === 3, 'admin unlocks all 40 levels 3-star');
+assert(Economy.themesUnlockedCount(rd) === 8, 'admin unlocks all themes');
+// 空输入
+assert(!Economy.redeem(rd, '  ').ok, 'blank input rejected');
+// 兑换记录随存档持久化
+Economy.save(rd, st);
+assert(Economy.load(st).redeemed && Object.keys(Economy.load(st).redeemed).length >= 1, 'redeemed hashes persist');
+
 if (failures > 0) {
   console.error('\n' + failures + ' assertion(s) FAILED');
   process.exit(1);

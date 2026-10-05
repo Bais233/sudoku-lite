@@ -104,7 +104,28 @@ main { flex: 1; display: flex; flex-direction: column; }
 .btn.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
 
 /* ---------- 主菜单 ---------- */
-#view-menu { align-items: center; justify-content: center; text-align: center; padding: 20px 0; }
+#view-menu { align-items: center; justify-content: center; text-align: center; padding: 20px 0; position: relative; }
+#redeem-hotzone {
+  position: absolute;
+  right: 0; bottom: 0;
+  width: 56px; height: 56px;
+  z-index: 5;
+}
+.redeem-input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--input-bg, var(--cell));
+  color: var(--text);
+  font-size: 16px;
+  font-family: inherit;
+  text-align: center;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  outline: none;
+}
+.redeem-input:focus { border-color: var(--accent); }
 .menu-title {
   font-size: 42px; margin: 0;
   background: linear-gradient(135deg, var(--accent), var(--accent2, var(--accent)));
